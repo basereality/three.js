@@ -14,7 +14,7 @@ import { PerspectiveCamera } from '../../cameras/PerspectiveCamera.js';
 import { WebGLAnimation } from '../webgl/WebGLAnimation.js';
 import { setProjectionFromUnion } from './WebVRUtils.js';
 
-function WebVRManager ( renderer ) {
+function WebVRManager( renderer ) {
 
 	var renderWidth, renderHeight;
 	var scope = this;
@@ -275,8 +275,9 @@ function WebVRManager ( renderer ) {
 
 	};
 
-	this.getCamera = function ( camera ) {
+	this.getCamera = function ( _camera ) {
 
+		var camera = cameraVR;
 		var userHeight = referenceSpaceType === 'local-floor' ? 1.6 : 0;
 
 		device.depthNear = camera.near;
@@ -441,7 +442,7 @@ function WebVRManager ( renderer ) {
 
 	};
 
-	this.addEventListener = function () { /* Stub */ }
+	this.addEventListener = function () { /* Stub */ };
 
 }
 

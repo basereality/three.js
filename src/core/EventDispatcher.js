@@ -83,5 +83,11 @@ class EventDispatcher {
 
 }
 
+Object.defineProperties(EventDispatcher.prototype, {
+	dispatchEvent: { enumerable: true },
+	addEventListener: { enumerable: true },
+	removeEventListener: { enumerable: true },
+	hasEventListener: { enumerable: true },
+});
 
 export { EventDispatcher };
