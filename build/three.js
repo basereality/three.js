@@ -18075,7 +18075,7 @@
 		camera.translateX(xOffset);
 		camera.translateZ(zOffset);
 		camera.matrixWorld.compose(camera.position, camera.quaternion, camera.scale);
-		camera.matrixWorldInverse.getInverse(camera.matrixWorld); // Find the union of the frustum values of the cameras and scale
+		camera.matrixWorldInverse.copy(camera.matrixWorld).invert(); // Find the union of the frustum values of the cameras and scale
 		// the values so that the near plane's position does not change in world space,
 		// although must now be relative to the new union camera.
 
@@ -18329,7 +18329,7 @@
 			cameraL.matrixWorldInverse.fromArray(frameData.leftViewMatrix);
 			cameraR.matrixWorldInverse.fromArray(frameData.rightViewMatrix); // TODO (mrdoob) Double check this code
 
-			standingMatrixInverse.getInverse(standingMatrix);
+			standingMatrixInverse.copy(standingMatrix).invert();
 
 			if (referenceSpaceType === 'local-floor') {
 				cameraL.matrixWorldInverse.multiply(standingMatrixInverse);
@@ -18339,14 +18339,14 @@
 			var parent = poseObject.parent;
 
 			if (parent !== null) {
-				matrixWorldInverse.getInverse(parent.matrixWorld);
+				matrixWorldInverse.copy(parent.matrixWorld).invert();
 				cameraL.matrixWorldInverse.multiply(matrixWorldInverse);
 				cameraR.matrixWorldInverse.multiply(matrixWorldInverse);
 			} // envMap and Mirror needs camera.matrixWorld
 
 
-			cameraL.matrixWorld.getInverse(cameraL.matrixWorldInverse);
-			cameraR.matrixWorld.getInverse(cameraR.matrixWorldInverse);
+			cameraL.matrixWorld.copy(cameraL.matrixWorldInverse).invert();
+			cameraR.matrixWorld.copy(cameraR.matrixWorldInverse).invert();
 			cameraL.projectionMatrix.fromArray(frameData.leftProjectionMatrix);
 			cameraR.projectionMatrix.fromArray(frameData.rightProjectionMatrix);
 			setProjectionFromUnion(cameraVR, cameraL, cameraR); //

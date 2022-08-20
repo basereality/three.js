@@ -349,7 +349,7 @@ function WebVRManager( renderer ) {
 
 		// TODO (mrdoob) Double check this code
 
-		standingMatrixInverse.getInverse( standingMatrix );
+		standingMatrixInverse.copy( standingMatrix ).invert();
 
 		if ( referenceSpaceType === 'local-floor' ) {
 
@@ -362,7 +362,7 @@ function WebVRManager( renderer ) {
 
 		if ( parent !== null ) {
 
-			matrixWorldInverse.getInverse( parent.matrixWorld );
+			matrixWorldInverse.copy( parent.matrixWorld ).invert();
 
 			cameraL.matrixWorldInverse.multiply( matrixWorldInverse );
 			cameraR.matrixWorldInverse.multiply( matrixWorldInverse );
@@ -371,8 +371,8 @@ function WebVRManager( renderer ) {
 
 		// envMap and Mirror needs camera.matrixWorld
 
-		cameraL.matrixWorld.getInverse( cameraL.matrixWorldInverse );
-		cameraR.matrixWorld.getInverse( cameraR.matrixWorldInverse );
+		cameraL.matrixWorld.copy( cameraL.matrixWorldInverse ).invert();
+		cameraR.matrixWorld.copy( cameraR.matrixWorldInverse ).invert();
 
 		cameraL.projectionMatrix.fromArray( frameData.leftProjectionMatrix );
 		cameraR.projectionMatrix.fromArray( frameData.rightProjectionMatrix );

@@ -24514,50 +24514,51 @@ var cameraRPos = new Vector3();
  */
 function setProjectionFromUnion( camera, cameraL, cameraR ) {
 
-  cameraLPos.setFromMatrixPosition( cameraL.matrixWorld );
-  cameraRPos.setFromMatrixPosition( cameraR.matrixWorld );
+	cameraLPos.setFromMatrixPosition( cameraL.matrixWorld );
+	cameraRPos.setFromMatrixPosition( cameraR.matrixWorld );
 
-  var ipd = cameraLPos.distanceTo( cameraRPos );
+	var ipd = cameraLPos.distanceTo( cameraRPos );
 
-  var projL = cameraL.projectionMatrix.elements;
-  var projR = cameraR.projectionMatrix.elements;
+	var projL = cameraL.projectionMatrix.elements;
+	var projR = cameraR.projectionMatrix.elements;
 
-  // VR systems will have identical far and near planes, and
-  // most likely identical top and bottom frustum extents.
-  // Use the left camera for these values.
-  var near = projL[ 14 ] / ( projL[ 10 ] - 1 );
-  var far = projL[ 14 ] / ( projL[ 10 ] + 1 );
-  var topFov = ( projL[ 9 ] + 1 ) / projL[ 5 ];
-  var bottomFov = ( projL[ 9 ] - 1 ) / projL[ 5 ];
+	// VR systems will have identical far and near planes, and
+	// most likely identical top and bottom frustum extents.
+	// Use the left camera for these values.
+	var near = projL[ 14 ] / ( projL[ 10 ] - 1 );
+	var far = projL[ 14 ] / ( projL[ 10 ] + 1 );
+	var topFov = ( projL[ 9 ] + 1 ) / projL[ 5 ];
+	var bottomFov = ( projL[ 9 ] - 1 ) / projL[ 5 ];
 
-  var leftFov = ( projL[ 8 ] - 1 ) / projL[ 0 ];
-  var rightFov = ( projR[ 8 ] + 1 ) / projR[ 0 ];
-  var left = near * leftFov;
-  var right = near * rightFov;
+	var leftFov = ( projL[ 8 ] - 1 ) / projL[ 0 ];
+	var rightFov = ( projR[ 8 ] + 1 ) / projR[ 0 ];
+	var left = near * leftFov;
+	var right = near * rightFov;
 
-  // Calculate the new camera's position offset from the
-  // left camera. xOffset should be roughly half `ipd`.
-  var zOffset = ipd / ( - leftFov + rightFov );
-  var xOffset = zOffset * - leftFov;
+	// Calculate the new camera's position offset from the
+	// left camera. xOffset should be roughly half `ipd`.
+	var zOffset = ipd / ( - leftFov + rightFov );
+	var xOffset = zOffset * - leftFov;
 
-  // TODO: Better way to apply this offset?
-  cameraL.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );
-  camera.translateX( xOffset );
-  camera.translateZ( zOffset );
-  camera.matrixWorld.compose( camera.position, camera.quaternion, camera.scale );
-  camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+	// TODO: Better way to apply this offset?
+	cameraL.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );
+	camera.translateX( xOffset );
+	camera.translateZ( zOffset );
+	camera.matrixWorld.compose( camera.position, camera.quaternion, camera.scale );
+	camera.matrixWorldInverse.copy( camera.matrixWorld ).invert();
 
-  // Find the union of the frustum values of the cameras and scale
-  // the values so that the near plane's position does not change in world space,
-  // although must now be relative to the new union camera.
-  var near2 = near + zOffset;
-  var far2 = far + zOffset;
-  var left2 = left - xOffset;
-  var right2 = right + ( ipd - xOffset );
-  var top2 = topFov * far / far2 * near2;
-  var bottom2 = bottomFov * far / far2 * near2;
 
-  camera.projectionMatrix.makePerspective( left2, right2, top2, bottom2, near2, far2 );
+	// Find the union of the frustum values of the cameras and scale
+	// the values so that the near plane's position does not change in world space,
+	// although must now be relative to the new union camera.
+	var near2 = near + zOffset;
+	var far2 = far + zOffset;
+	var left2 = left - xOffset;
+	var right2 = right + ( ipd - xOffset );
+	var top2 = topFov * far / far2 * near2;
+	var bottom2 = bottomFov * far / far2 * near2;
+
+	camera.projectionMatrix.makePerspective( left2, right2, top2, bottom2, near2, far2 );
 
 }
 
@@ -24900,7 +24901,7 @@ function WebVRManager( renderer ) {
 
 		// TODO (mrdoob) Double check this code
 
-		standingMatrixInverse.getInverse( standingMatrix );
+		standingMatrixInverse.copy( standingMatrix ).invert();
 
 		if ( referenceSpaceType === 'local-floor' ) {
 
@@ -24913,7 +24914,7 @@ function WebVRManager( renderer ) {
 
 		if ( parent !== null ) {
 
-			matrixWorldInverse.getInverse( parent.matrixWorld );
+			matrixWorldInverse.copy( parent.matrixWorld ).invert();
 
 			cameraL.matrixWorldInverse.multiply( matrixWorldInverse );
 			cameraR.matrixWorldInverse.multiply( matrixWorldInverse );
@@ -24922,8 +24923,8 @@ function WebVRManager( renderer ) {
 
 		// envMap and Mirror needs camera.matrixWorld
 
-		cameraL.matrixWorld.getInverse( cameraL.matrixWorldInverse );
-		cameraR.matrixWorld.getInverse( cameraR.matrixWorldInverse );
+		cameraL.matrixWorld.copy( cameraL.matrixWorldInverse ).invert();
+		cameraR.matrixWorld.copy( cameraR.matrixWorldInverse ).invert();
 
 		cameraL.projectionMatrix.fromArray( frameData.leftProjectionMatrix );
 		cameraR.projectionMatrix.fromArray( frameData.rightProjectionMatrix );
