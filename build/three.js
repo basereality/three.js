@@ -18650,6 +18650,7 @@
 			const scope = this;
 			let session = null;
 			let framebufferScaleFactor = 1.0;
+			var poseTarget = null;
 			let referenceSpace = null;
 			let referenceSpaceType = 'local-floor';
 			let customReferenceSpace = null;
@@ -18680,6 +18681,10 @@
 			this.cameraAutoUpdate = true;
 			this.enabled = false;
 			this.isPresenting = false;
+
+			this.getCameraPose = function () {
+				return pose;
+			};
 
 			this.getController = function (index) {
 				let controller = controllers[index];
@@ -18997,6 +19002,10 @@
 				camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
 			}
 
+			this.setPoseTarget = function (object) {
+				if (object !== undefined) poseTarget = object;
+			};
+
 			this.updateCamera = function (camera) {
 				if (session === null) return;
 				cameraVR.near = cameraR.near = cameraL.near = camera.near;
@@ -19012,8 +19021,9 @@
 					_currentDepthFar = cameraVR.far;
 				}
 
-				const parent = camera.parent;
 				const cameras = cameraVR.cameras;
+				var object = poseTarget || camera;
+				const parent = object.parent;
 				updateCamera(cameraVR, parent);
 
 				for (let i = 0; i < cameras.length; i++) {
@@ -19022,12 +19032,10 @@
 
 				cameraVR.matrixWorld.decompose(cameraVR.position, cameraVR.quaternion, cameraVR.scale); // update user camera and its children
 
-				camera.position.copy(cameraVR.position);
-				camera.quaternion.copy(cameraVR.quaternion);
-				camera.scale.copy(cameraVR.scale);
-				camera.matrix.copy(cameraVR.matrix);
-				camera.matrixWorld.copy(cameraVR.matrixWorld);
-				const children = camera.children;
+				object.matrixWorld.copy(cameraVR.matrixWorld);
+				object.matrix.copy(cameraVR.matrix);
+				object.matrix.decompose(object.position, object.quaternion, object.scale);
+				const children = object.children;
 
 				for (let i = 0, l = children.length; i < l; i++) {
 					children[i].updateMatrixWorld(true);

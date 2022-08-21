@@ -25344,12 +25344,14 @@ class WebXRManager extends EventDispatcher {
 
 		let session = null;
 		let framebufferScaleFactor = 1.0;
+		var poseTarget = null;
 
 		let referenceSpace = null;
 		let referenceSpaceType = 'local-floor';
 		let customReferenceSpace = null;
 
 		let pose = null;
+
 		let glBinding = null;
 		let glProjLayer = null;
 		let glBaseLayer = null;
@@ -25386,6 +25388,12 @@ class WebXRManager extends EventDispatcher {
 		this.enabled = false;
 
 		this.isPresenting = false;
+
+		this.getCameraPose = function ( ) {
+
+			return pose;
+
+		};
 
 		this.getController = function ( index ) {
 
@@ -25811,6 +25819,12 @@ class WebXRManager extends EventDispatcher {
 
 		}
 
+		this.setPoseTarget = function ( object ) {
+
+			if ( object !== undefined ) poseTarget = object;
+
+		};
+
 		this.updateCamera = function ( camera ) {
 
 			if ( session === null ) return;
@@ -25832,8 +25846,9 @@ class WebXRManager extends EventDispatcher {
 
 			}
 
-			const parent = camera.parent;
 			const cameras = cameraVR.cameras;
+			var object = poseTarget || camera;
+			const parent = object.parent;
 
 			updateCamera( cameraVR, parent );
 
@@ -25847,13 +25862,11 @@ class WebXRManager extends EventDispatcher {
 
 			// update user camera and its children
 
-			camera.position.copy( cameraVR.position );
-			camera.quaternion.copy( cameraVR.quaternion );
-			camera.scale.copy( cameraVR.scale );
-			camera.matrix.copy( cameraVR.matrix );
-			camera.matrixWorld.copy( cameraVR.matrixWorld );
+			object.matrixWorld.copy( cameraVR.matrixWorld );
+			object.matrix.copy( cameraVR.matrix );
+			object.matrix.decompose( object.position, object.quaternion, object.scale );
 
-			const children = camera.children;
+			const children = object.children;
 
 			for ( let i = 0, l = children.length; i < l; i ++ ) {
 
